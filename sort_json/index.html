@@ -1,0 +1,566 @@
+<html>
+<meta charset="UTF-8" />
+<style>
+  table {
+    font-family: "Times New Roman", Times, serif;
+    border-collapse: collapse;
+    width: 100%;
+    color: rgb(0, 0, 0);
+  }
+
+  th,
+  td {
+    font-size: 1.5vw;
+    overflow: clip;
+  }
+
+  thead {
+    height: 50px;
+  }
+
+  td {
+    border: 1px solid #ffffff;
+    padding: 9px;
+    text-align: center;
+    background-color: rgb(204, 207, 33);
+  }
+
+  th {
+    background-color: moccasin;
+    border: 1px solid #ffffff;
+    font-weight: bold;
+    text-transform: capitalize;
+  }
+
+  input[type="text"] {
+    font-family: "Times New Roman", Times, serif;
+    border: none;
+    background-color: moccasin;
+    text-align: center;
+    outline: none;
+    width: 8vw;
+    font-size: 1.5vw;
+  }
+
+  input.sort {
+    background-color: rgb(204, 207, 33);
+    width: fit-content;
+    height: 1.5vw;
+  }
+
+  button.submit_button {
+    width: 10vw;
+    font-size: 1vw;
+  }
+
+  div {
+    font-size: 1vw;
+  }
+
+  button[id="execute_params"] {
+    width: 10vw;
+    font-size: 1vw;
+  }
+
+  input[id="itemUpload"] {
+    font-size: 1vw;
+  }
+
+  input[name="submit"] {
+    font-size: 1vw;
+  }
+</style>
+
+<script>
+  var dir = "asc";
+  var pos = -1;
+  let g_result = null;
+  let changed = new Set();
+  window.onload = () => {
+    itemsFile = document.getElementById("items_file");
+    itemsFile.addEventListener("focusout", function (e) {
+      let result = getItems(itemsFile.value.trim()).then((result) => {
+        loadTableHead(Object.keys(result[0]));
+        loadTableBody(result);
+        g_result = result;
+      });
+    });
+    itemsFile.addEventListener("keyup", function (e) {
+      if (e.key == "Enter" || e.keyCode == 13) {
+        let result = getItems(itemsFile.value.trim()).then((result) => {
+          loadTableHead(Object.keys(result[0]));
+          loadTableBody(result);
+          g_result = result;
+        });
+      }
+    });
+
+    let itemsDownload = document.getElementById("items_download");
+    itemsDownload.addEventListener("click", function (e) {
+      let select = document.getElementsByTagName("select")[0];
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./items_down.php?action=download&file=" + select.value
+      );
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    fetch("./jpg_pdf.php?option=exec")
+
+    let index_jpg = document.getElementById("index_jpg");
+    index_jpg.addEventListener("click", function (e) {
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./jpg_pdf.php?option=download&file=index.jpg"
+      );
+      a.click();
+      document.body.removeChild(a);
+    })
+
+    let index_pdf = document.getElementById("index_pdf");
+    index_pdf.addEventListener("click", function (e) {
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./jpg_pdf.php?option=download&file=index.pdf"
+      );
+      a.click();
+      document.body.removeChild(a);
+    })
+
+    let index_flowers_jpg = document.getElementById("index_flowers_jpg");
+    index_flowers_jpg.addEventListener("click", function (e) {
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./jpg_pdf.php?option=download&file=index_flowers.jpg"
+      );
+      a.click();
+      document.body.removeChild(a);
+    })
+
+    let index_flowers_pdf = document.getElementById("index_flowers_pdf");
+    index_flowers_pdf.addEventListener("click", function (e) {
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./jpg_pdf.php?option=download&file=index_flowers.pdf"
+      );
+      a.click();
+      document.body.removeChild(a);
+    })
+
+    let index_others_jpg = document.getElementById("index_others_jpg");
+    index_others_jpg.addEventListener("click", function (e) {
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./jpg_pdf.php?option=download&file=index_others.jpg"
+      );
+      a.click();
+      document.body.removeChild(a);
+    })
+
+    let index_others_pdf = document.getElementById("index_others_pdf");
+    index_others_pdf.addEventListener("click", function (e) {
+      var a = document.createElement("a");
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.setAttribute(
+        "href",
+        "./jpg_pdf.php?option=download&file=index_others.pdf"
+      );
+      a.click();
+      document.body.removeChild(a);
+    })
+
+    let b = document.getElementsByClassName("submit_button")[0];
+    b.addEventListener("click", function (e) {
+      if (g_result != null) {
+        var table = document.getElementsByTagName("table")[0];
+        for (let change of changed) {
+          for (let item of g_result) {
+            if (change[0].innerText == item["ItemCode"]) {
+              item["ItemNameHebrew"] = change[1].innerText;
+              item["Brand hebrew name"] = change[2].innerText;
+              item["THC"] = change[3].innerText;
+              item["CBD"] = change[4].innerText;
+              item["ExtraText"] = change[5].innerText;
+              item["Batch"] = change[6].innerText;
+              item["URL1"] = change[7].innerText;
+              item["URL2"] = change[8].innerText;
+              break;
+            }
+          }
+        }
+
+        fetch("./store_items.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json;charset=utf-8",
+          },
+          body: JSON.stringify({
+            jsonData: g_result,
+            Items: itemsFile.value,
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            alert("Uploaded to server.");
+          }
+        });
+      } else {
+        alert("Populate the table first.");
+      }
+    });
+
+    fetch("./store_items.php");
+
+    updateFileItems();
+
+    sort_json = document.getElementById("execute_params");
+    sort_json.addEventListener("click", function (e) {
+      sort_params = "{";
+      for (let div of document.getElementsByTagName("div")) {
+        for (let label of div.getElementsByTagName("label")) {
+          if (/(.+\.csv)|(.+\.ods)/.test(label.nextElementSibling.value)) {
+            sort_params +=
+              '"' +
+              label.innerText.substring(0, label.innerText.length - 1) +
+              '"' +
+              ":" +
+              '"' +
+              label.nextElementSibling.value.trim() +
+              '"' +
+              ",";
+          }
+        }
+      }
+      sort_params = sort_params.substring(0, sort_params.length - 1);
+      sort_params += "}";
+      sort_params = JSON.parse(sort_params);
+      for (i = 0; i < 3; i++) {
+        for (let div of Array.from(
+            document.getElementsByTagName("div")
+          ).slice(3, 5)) {
+          sort_params[
+              div
+              .getElementsByTagName("label")[i].innerText.substring(
+                0,
+                div.getElementsByTagName("label")[i].innerText.length - 1
+              )
+            ] = div
+            .getElementsByTagName("label")[i].nextElementSibling.value.trim();
+        }
+        fetch("./store_items.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json;charset=utf-8",
+          },
+          body: JSON.stringify({
+            info: sort_params,
+          }),
+        }).then((response) => {
+          if (response.status === 200) {
+            fetch("./jpg_pdf.php?option=exec")
+            alert("Executed sort.");
+          } else if (response.status === 400) {
+            alert(
+              "Wrong sort arguments. Please try again with the correct ones."
+            );
+          } else if (response.status > 400) {
+            alert("Something went wrong.");
+          }
+        });
+      }
+    });
+  };
+
+  function insertItemsVal(elem) {
+    itemsFile = document.getElementById("items_file");
+    itemsFile.value = elem.innerText;
+    items_file.dispatchEvent(new Event("focusout"));
+  }
+
+  function updateFileItems() {
+    fetch("./items_down.php?action=display").then(function (result) {
+      result.json().then((result) => {
+        var files = document.getElementById("files");
+        if (files.innerHTML != "") {
+          files.innerHTML = "";
+        }
+        for (let file of Object.values(result)) {
+          files.innerHTML +=
+            `<option onclick = insertItemsVal(this) > ` + file + "</option>";
+        }
+      });
+    });
+  }
+
+  async function getItems(items_file) {
+    let resp_prom = await fetch(`./items.php?Items=` + items_file);
+    try {
+      json = await resp_prom.json();
+      return json;
+    } catch (error) {
+      console.log(error.value);
+    }
+  }
+
+  function loadTableHead(headers) {
+    const tableHead = document.getElementById("items_head");
+    let dataHtml = "";
+    i = 0;
+
+    for (let head of headers) {
+      dataHtml += `<th onclick=sort(${i})>${head}</th>`;
+      i += 1;
+    }
+    dataHtml = `<tr>${dataHtml}</tr>`;
+    tableHead.innerHTML = dataHtml;
+  }
+
+  function sort(num) {
+    var table, rows;
+    table = document.getElementById("items_body");
+    if (dir == "asc" && pos == num) {
+      dir = "desc";
+    } else {
+      dir = "asc";
+    }
+    rows = table.rows;
+    quickSort(rows, num, 0, rows.length - 1);
+    pos = num;
+  }
+
+  function quickSort(rows, pos, start, end) {
+    if (start < end) {
+      let piv_pos = rand_part(rows, pos, start, end);
+      quickSort(rows, pos, start, piv_pos - 1);
+      quickSort(rows, pos, piv_pos + 1, end);
+    }
+  }
+
+  function partition(rows, pos, start, end) {
+    let i = start + 1;
+    let piv = rows[start];
+
+    for (let j = start + 1; j <= end; j++) {
+      if (dir == "asc") {
+        if (
+          regexCompute(rows[j].getElementsByTagName("td")[pos].innerText) <
+          regexCompute(piv.getElementsByTagName("td")[pos].innerText)
+        ) {
+          let tmp = rows[i].innerHTML;
+          rows[i].innerHTML = rows[j].innerHTML;
+          rows[j].innerHTML = tmp;
+          i++;
+        }
+      } else {
+        if (
+          regexCompute(rows[j].getElementsByTagName("td")[pos].innerText) >
+          regexCompute(piv.getElementsByTagName("td")[pos].innerText)
+        ) {
+          let tmp = rows[i].innerHTML;
+          rows[i].innerHTML = rows[j].innerHTML;
+          rows[j].innerHTML = tmp;
+          i++;
+        }
+      }
+    }
+
+    let tmp = rows[start].innerHTML;
+    rows[start].innerHTML = rows[i - 1].innerHTML;
+    rows[i - 1].innerHTML = tmp;
+    return i - 1;
+  }
+
+  function rand_part(rows, pos, start, end) {
+    let random = getRndInteger(start, end);
+
+    let tmp = rows[random].innerHTML;
+    rows[random].innerHTML = rows[start].innerHTML;
+    rows[start].innerHTML = tmp;
+
+    return partition(rows, pos, start, end);
+  }
+
+  function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+
+  function regexCompute(obj) {
+    if (/^\d+\.*\d*%*$/g.test(obj)) {
+      if (/%$/.test(obj)) {
+        return Number(obj.substring(0, obj.length - 1));
+      } else {
+        return Number(obj);
+      }
+    } else {
+      return obj.toLowerCase();
+    }
+  }
+
+  function loadTableBody(result) {
+    const tableBody = document.getElementById("items_body");
+    let dataHtml = "";
+    i = 0;
+
+    for (let item of result) {
+      if (Object.values(item)[0] !== null) {
+        dataHtml += "<tr>";
+        flag = true;
+        for (let col of Object.values(item)) {
+          if (col !== null) {
+            if (flag) {
+              dataHtml += `<td>${col}</td>`;
+              flag = false;
+            } else {
+              dataHtml += `<td onclick=addInput(this)>${col}</td>`;
+            }
+          }
+        }
+        i += 1;
+        dataHtml += "</tr>";
+      }
+    }
+
+    tableBody.innerHTML = dataHtml;
+  }
+
+  function addInput(element) {
+    element.innerHTML = `<input type="text" value ="${element.innerHTML}">`;
+    element.children[0].focus();
+    inputValue(element.children[0]);
+    element.onclick = function () {
+      return false;
+    };
+  }
+
+  function inputValue(element) {
+    element.addEventListener("keyup", function (e) {
+      if (e.key == "Enter" || e.keyCode == 13) {
+        element.parentElement.onclick = function onclick(event) {
+          addInput(this);
+        };
+        changed.add(element.parentElement.parentElement.children);
+        element.parentElement.innerHTML = escapeHtml(element.value);
+      }
+    });
+
+    element.addEventListener("focusout", function (e) {
+      element.parentElement.onclick = function onclick(event) {
+        addInput(this);
+      };
+      changed.add(element.parentElement.parentElement.children);
+      element.parentElement.innerHTML = escapeHtml(element.value);
+    });
+  }
+
+  function escapeHtml(unsafe) {
+    return String(unsafe).replace(/[&\\#,+()$~*?<>{}]/g, "");
+  }
+
+  function sendFile(elem, i) {
+    const uri = "./file.php";
+    const xhr = new XMLHttpRequest();
+    const fd = new FormData();
+
+    xhr.open("POST", uri, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        alert(xhr.responseText);
+        document
+          .getElementsByTagName("div")[i].getElementsByTagName("input")[0].value =
+          elem.previousElementSibling.files[0].name;
+        if (i == 2) {
+          itemsFile = document.getElementById("items_file");
+          itemsFile.dispatchEvent(new Event("focusout"));
+          updateFileItems();
+        }
+      }
+    };
+    fd.append("itemUpload", elem.previousElementSibling.files[0]);
+    xhr.send(fd);
+  }
+</script>
+
+<body>
+  <input type="file" name="itemUpload" id="itemUpload" accept=".ods" />
+  <input type="submit" value="Upload products file" name="submit" onclick="sendFile(this,1)" />
+
+  <input type="file" name="itemUpload" id="itemUpload" accept=".csv" />
+  <input type="submit" value="Upload items file" name="submit" onclick="sendFile(this,2)" />
+
+  <div>
+    <label for="files">Choose a items file to download:</label>
+    <select style="font-size: 1vw" name="files" id="files"></select>
+    <button style="font-size: 1vw" id="items_download">Download</button>
+  </div>
+  <div>
+    <label>Products file:</label>
+    <input type="text" class="sort" />
+  </div>
+  <div style="border-left: 1.3vw solid #ffffff">
+    <label>Items file:</label>
+    <input type="text" class="sort" id="items_file" value="items.csv" />
+
+    <button class="button submit_button" style="display: inline">
+      Upload changes
+    </button>
+  </div>
+
+  <div style="border-top: 2vw solid #fff">
+    <label style="border-left: 2.46vw solid #ffffff">Rules file:</label>
+    <input type="text" class="sort" value="rules.json" />
+
+    <label style="border-left: 2.46vw solid #ffffff">Rules file:</label>
+    <input type="text" class="sort" value="rules_flowers.json" />
+
+    <label style="border-left: 2.46vw solid #ffffff">Rules file:</label>
+    <input type="text" class="sort" value="rules_others.json" />
+
+    <button id="execute_params">Sort JSON</button>
+  </div>
+
+  <div>
+    <label>Output json file:</label>
+    <input type="text" class="sort" value="sorted_json.json" />
+
+    <label>Output json file:</label>
+    <input type="text" class="sort" value="sorted_flowers.json" />
+
+    <label>Output json file:</label>
+    <input type="text" class="sort" value="sorted_others.json" />
+  </div>
+
+  <div>
+    <button id="index_jpg">Download .jpg from index</button>
+    <button id="index_pdf">Download .pdf from index</button>
+    <button id="index_flowers_jpg">Download .jpg from index_flowers</button>
+    <button id="index_flowers_pdf">Download .pdf from index_flowers</button>
+    <button id="index_others_jpg">Download .jpg from index_others</button>
+    <button id="index_others_pdf">Download .pdf from index_others</button>
+  </div>
+
+  <table class="sortable-table">
+    <thead id="items_head"></thead>
+    <tbody id="items_body"></tbody>
+  </table>
+</body>
+
+</html>

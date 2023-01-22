@@ -1,0 +1,6 @@
+greenlet==1.1.2
+Pillow==8.4.0
+playwright==1.17.0
+pyee==8.2.2
+typing-extensions==4.0.0
+websockets==10.1
