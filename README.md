@@ -1,6 +1,6 @@
 # python_json_short_products
 
-This is a sort json programm with an html and php files that sort a JSON Object according to parameters given by the user in rules.json
+This is a sort json program with an html and php files that sort a JSON Object according to parameters given by the user in rules.json
 
 The rules.json file should have the form
 {"Expresions":{"expresion":weight}}
