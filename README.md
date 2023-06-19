@@ -15,7 +15,7 @@ This is a Python script that reads JSON files containing product information and
 - Run the script with the following command:
 
 ```bash
-python3 main.py -f ods_filename -i items_filename -r rules_filename -s sorted_json_file -n k=cn
+python3 short_json.py -f ods_filename -i items_filename -r rules_filename -s sorted_json_file -n k=cn
 ```
 
 - The script will create a `results` folder with the sorted JSON files.
@@ -32,13 +32,13 @@ python3 main.py -f ods_filename -i items_filename -r rules_filename -s sorted_js
 Here are some examples of the command line arguments:
 
 ```bash
-python3 main.py -f products.ods -i items.csv -r rules.json -s sorted.json -n ItemCode=1 ItemName=2 TreatmentGroup=3 DoseFamily=4 Type=5 HebrewName=6 HebrewBrand=7
+python3 short_json.py -f products.ods -i items.csv -r rules.json -s sorted.json -n ItemCode=1 ItemName=2 TreatmentGroup=3 DoseFamily=4 Type=5 HebrewName=6 HebrewBrand=7
 ```
 
 This will read the products.ods file and the items.csv file, use the rules.json file for sorting, and create a sorted.json file with the sorted products. It will also create a rules.json file if it does not exist. It will use the column numbers 1 to 7 for the keys ItemCode, ItemName, TreatmentGroup, DoseFamily, Type, HebrewName, and HebrewBrand.
 
 ```bash
-python3 main.py -f products.ods -i items.csv -s sorted.json ItemCode=1 ItemName=2 TreatmentGroup=3 DoseFamily=4 Type=5
+python3 short_json.py -f products.ods -i items.csv -s sorted.json ItemCode=1 ItemName=2 TreatmentGroup=3 DoseFamily=4 Type=5
 ```
 
 This will read the products.ods file and the items.csv file, use the default rules for sorting, and create a sorted.json file with the sorted products. It will use the column numbers 1 to 5 for the keys ItemCode, ItemName, TreatmentGroup, DoseFamily, and Type.
