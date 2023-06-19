@@ -1,20 +1,50 @@
-# python_json_short_products
+# Python JSON Sorter
 
-This is a sort json program with an html and php files that sort a JSON Object according to parameters given by the user in rules.json
+This is a Python script that reads JSON files containing product information and sorts them by various criteria.
 
-The rules.json file should have the form
-{"Expresions":{"expresion":weight}}
+## Requirements
 
-Usage of this script is:
+- Python 3.8 or higher
+- pandas
+- bidi
+- argparse
 
-./sort_json.py ItemCode=2 ItemPrice=9 TreatmentGroup=1  DoseFamily=1 Type=1 ItemName=3 HebrewName=4 HebrewBrand=5 -f odsfilename.ods -i itemsfile.csv -r rules.json -s output.json
+## Usage
 
-The first nargs are used to define wich columns of the ods correspond to the key values they represend.
+- Place your JSON files in the `data` folder.
+- Run the script with the following command:
 
--f is for the filename of the ods we will be using. It's required.
+```bash
+python3 main.py -f ods_filename -i items_filename -r rules_filename -s sorted_json_file -n k=cn
+```
 
--i is for filename of the items we will be using. Also required.
+- The script will create a `results` folder with the sorted JSON files.
 
--r is for filename of the rules json file. Default is rules.json.
+## Features
 
--s is for output filename. Default is sorted_json.json.
+- The script can handle different types of products, such as flowers, oils, inhalers, etc.
+- The script can sort the products by various criteria, such as price, popularity, rating, etc.
+- The script can use different rules and weights for sorting the products, which can be specified in a JSON file.
+- The script can create a JSON file with the rules and weights if it does not exist.
+
+## Examples
+
+Here are some examples of the command line arguments:
+
+```bash
+python3 main.py -f products.ods -i items.csv -r rules.json -s sorted.json -n ItemCode=1 ItemName=2 TreatmentGroup=3 DoseFamily=4 Type=5 HebrewName=6 HebrewBrand=7
+```
+
+This will read the products.ods file and the items.csv file, use the rules.json file for sorting, and create a sorted.json file with the sorted products. It will also create a rules.json file if it does not exist. It will use the column numbers 1 to 7 for the keys ItemCode, ItemName, TreatmentGroup, DoseFamily, Type, HebrewName, and HebrewBrand.
+
+```bash
+python3 main.py -f products.ods -i items.csv -s sorted.json ItemCode=1 ItemName=2 TreatmentGroup=3 DoseFamily=4 Type=5
+```
+
+This will read the products.ods file and the items.csv file, use the default rules for sorting, and create a sorted.json file with the sorted products. It will use the column numbers 1 to 5 for the keys ItemCode, ItemName, TreatmentGroup, DoseFamily, and Type.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
