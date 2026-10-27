@@ -1,0 +1,4 @@
+__pycache__/
+.pytest_cache/
+# Runtime data written by the web UI and sort_json.py
+sort_json/data/

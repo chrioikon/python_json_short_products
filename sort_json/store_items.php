@@ -1,97 +1,112 @@
 <?php
+require __DIR__ . '/common.php';
+
+// Products sheet columns passed to sort_json.py.
+const SORT_COLUMNS = 'ItemCode=2 ItemPrice=9 TreatmentGroup=1 DoseFamily=1 Type=1 ItemName=3 HebrewName=4 HebrewBrand=5';
+
+// Request field => [sort_json.py option, allowed extensions, required].
+const SORT_FILES = [
+    'Products file' => ['-f', ['ods'], true],
+    'Items file' => ['-i', ['csv'], true],
+    'Rules file' => ['-r', ['json'], false],
+    'Output json file' => ['-s', ['json'], false],
+];
+
+const BACKUP_DIR = DATA_DIR . 'backup/';
+const BACKUP_MIN_COUNT = 10;   // start pruning when a file has this many backups
+const BACKUP_MAX_DELETE = 6;   // delete at most this many per run
+const BACKUP_MIN_AGE_DAYS = 5; // only delete backups at least this old
+
+// Save the edited items table as CSV (with a blank line after every row, as sort_json.py expects).
+function store_items($rows, $items_file)
+{
+    $path = data_path($items_file, ['csv']);
+    if ($path === false || !is_array($rows) || ($handle = fopen($path, 'w')) === false) {
+        fail(400, 'Invalid items file.');
+    }
+    $header = false;
+    foreach ($rows as $row) {
+        if (empty($header)) {
+            $header = array_keys($row);
+            fputcsv($handle, $header);
+            fputs($handle, "\n");
+            $header = array_flip($header);
+        }
+        if (!empty($row['ItemCode'])) {
+            fputcsv($handle, array_merge($header, $row));
+            fputs($handle, "\n");
+        }
+    }
+    fclose($handle);
+}
+
+// Run sort_json.py with the files named in $info and echo its output.
+function sort_json($info)
+{
+    $command = './sort_json.py ' . SORT_COLUMNS;
+    foreach (SORT_FILES as $field => list($option, $extensions, $required)) {
+        if (empty($info[$field])) {
+            if ($required) {
+                fail(400, "Missing $field.");
+            }
+            continue;
+        }
+        if (data_path($info[$field], $extensions) === false) {
+            fail(400, "Invalid $field. Please try again.");
+        }
+        $command .= " $option " . shell_quote($info[$field]);
+    }
+
+    exec($command . ' 2>&1', $lines, $status);
+    $output = implode("\n", $lines);
+    if ($status !== 0) {
+        fail(preg_match('/Please\s+try\s+again/', $output) ? 400 : 500, $output);
+    }
+    echo $output;
+}
+
+// Back up every data file (once a day) and prune old backups. Products sheets are removed after backup.
+function backup_data_files()
+{
+    if (!file_exists(BACKUP_DIR)) {
+        mkdir(BACKUP_DIR, 0755, true);
+    }
+    $backups = scandir(BACKUP_DIR);
+    $now = new DateTime('now');
+
+    foreach (preg_grep('/(\.csv$)|(\.json$)|(\.ods$)/', scandir(DATA_DIR)) as $file) {
+        if (copy(DATA_DIR . $file, BACKUP_DIR . date('Y-m-d') . '.' . $file) && preg_match('/\.ods$/', $file)) {
+            unlink(DATA_DIR . $file);
+        }
+
+        $file_backups = array_filter($backups, function ($backup) use ($file) {
+            return strpos($backup, $file) !== false;
+        });
+        if (count($file_backups) < BACKUP_MIN_COUNT) {
+            continue;
+        }
+        $deleted = 0;
+        foreach ($file_backups as $backup) {
+            if ($deleted >= BACKUP_MAX_DELETE || !preg_match('/^\d+-\d+-\d+/', $backup, $date)) {
+                continue;
+            }
+            if (intval((new DateTime($date[0]))->diff($now)->format('%a')) >= BACKUP_MIN_AGE_DAYS) {
+                unlink(BACKUP_DIR . $backup);
+                $deleted++;
+            }
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post = json_decode(file_get_contents('php://input'), true);
     if (isset($post['jsonData'])) {
-        $jsonData = $post['jsonData'];
-        $itemsFile = $post['Items'];
-        if (preg_match('/.+\.csv/', $itemsFile) >= 1) {
-            if (($handle = fopen("./data/" . $itemsFile, "w")) !== FALSE) {
-                $header = false;
-                foreach ($jsonData as $single_json) {
-                    if (empty($header)) {
-                        $header = array_keys($single_json);
-                        fputcsv($handle, $header);
-                        fputs($handle, "\n");
-                        $header = array_flip($header);
-                    }
-                    if (!empty($single_json["ItemCode"])) {
-                        fputcsv($handle, array_merge($header, $single_json));
-                        fputs($handle, "\n");
-                    }
-                }
-            }
-        }
-    } else if (isset($post['info'])) {
-
-        if (!(isset($post['info']['Products file'])) && (isset($post['info']['Items file']))) {
-            http_response_code(400);
-            exit(1);
-        }
-        
-        $output = "";
-        if ((isset($post['info']['Rules file'])) && (isset($post['info']['Output json file']))) {
-
-           echo $output = shell_exec("./sort_json.py ItemCode=2 ItemPrice=9 TreatmentGroup=1  DoseFamily=1 Type=1 ItemName=3 HebrewName=4 HebrewBrand=5 -f " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Products file']))) . " -i " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Items file']))) . " -r " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Rules file']))) . " -s " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Output json file']))) . "  2>&1");
-        } else if ((isset($post['info']['Rules file']))) {
-
-          echo  $output = shell_exec("./sort_json.py ItemCode=2 ItemPrice=9 TreatmentGroup=1  DoseFamily=1 Type=1 ItemName=3 HebrewName=4 HebrewBrand=5 -f " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Products file']))) . " -i " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Items file']))) . " -r " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Rules file']))) . "   2>&1");
-        } else if (isset($post['info']['Output json file'])) {
-
-          echo  $output = shell_exec("./sort_json.py ItemCode=2 ItemPrice=9 TreatmentGroup=1  DoseFamily=1 Type=1 ItemName=3 HebrewName=4 HebrewBrand=5 -f " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Products file']))) . " -i " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Items file']))) . " -s " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Output json file']))) . "   2>&1");
-        } else {
-
-
-         echo   $output = shell_exec("./sort_json.py ItemCode=2 ItemPrice=9 TreatmentGroup=1  DoseFamily=1 Type=1 ItemName=3 HebrewName=4 HebrewBrand=5 -f " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Products file']))) . " -i " . preg_replace('/\)/', '\\)', preg_replace('/\(/', '\\(', preg_replace('/\s+/', '\\ ', $post['info']['Items file']))) . " 2>&1");
-        }
-
-        if (preg_match('/Please\s+try\s+again/', $output) >= 1) {
-            http_response_code(400);
-            exit(1);
-        }
+        store_items($post['jsonData'], isset($post['Items']) ? $post['Items'] : '');
+    } elseif (isset($post['info'])) {
+        sort_json($post['info']);
+    } else {
+        fail(400);
     }
-} else if ($_SERVER["REQUEST_METHOD"] == "GET") {
-
-    if (!file_exists('./data/backup/')) {
-        mkdir('./data/backup/', 0755, true);
-    }
-    $backupList = scandir('./data/backup/');
-    $fileList = preg_grep("/(\.csv$)|(\.json$)|(\.ods$)/",scandir("./data"));
-
-    foreach ($fileList as $file_info) {
-        if (($handle = fopen("./data/" . $file_info, "r")) !== FALSE) {
-            $b_handle = fopen("./data/backup/" . date('Y-m-d') . "." . $file_info, "w");
-            while (!feof($handle)) {
-                fwrite($b_handle, fgets($handle));
-            }
-            fclose($b_handle);
-            fclose($handle);
-            if (preg_match('/\.ods$/',$file_info)) {
-                unlink("./data/".$file_info);
-            }
-        }
-        $count = 0;
-        $corrFiles = array();
-        foreach ($backupList as $file) {
-
-            if (strpos($file, $file_info) !== false) {
-                array_push($corrFiles, $file);
-                $count++;
-            }
-        }
-
-
-        if ($count >= 10) {
-            $thres = 5;
-            foreach ($corrFiles as $corrFile) {
-                preg_match("/^(\d+)-(\d+)-(\d+)/", $corrFile, $m);
-                $da = new DateTime($m[0]);
-                $daNow = new DateTime('now');
-                $interval = $da->diff($daNow);
-                if (intval($interval->format("%a")) >= 5 && $thres >= 0) {
-                    unlink('./data/backup/' . $corrFile);
-                    $thres--;
-                }
-            }
-        }
-    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    backup_data_files();
 }

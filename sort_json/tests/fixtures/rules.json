@@ -1,0 +1,16 @@
+{
+   "Expressions": {
+      "ItemPrice>=150": 5,
+      "(THC_Percent>20)|!(Brand='מותג4')": 2,
+      "ItemPrice<60": -99999
+   },
+   "Type": {
+      "תפרחות": 10
+   },
+   "DoseFamily": {
+      "T20/C4": 3
+   },
+   "Brand": {
+      "מותג1": 4
+   }
+}

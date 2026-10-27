@@ -1,29 +1,45 @@
 #!/opt/alt/python38/bin/python3
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
+"""Save a full-page screenshot of a URL, plus a PDF of it next to the image."""
 import argparse
-from playwright.sync_api import sync_playwright
+import os
+import sys
+
 from PIL import Image
-import re
+from playwright.sync_api import sync_playwright
 
-parser = argparse.ArgumentParser(description="Take url and return png and pdf")
+ATTEMPTS = 10
 
-parser.add_argument("-u",help="Input the URL to take screenshot.",required=True)
-parser.add_argument("-o",help="Output file.",required=True)
-args = parser.parse_args()
-i= 0
-while(i<10):
-    try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch()
+
+def take_screenshot(url: str, output: str) -> None:
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        try:
             page = browser.new_page()
-            page.goto(vars(args)["u"])
-            page.screenshot(path=vars(args)["o"],full_page=True)
-        image1 = Image.open(vars(args)["o"])
-        im1 = image1.convert('RGB')
-        im1.save(re.sub(r'\.(png|jpg)+$',".pdf",vars(args)["o"]))
-        break
-    except Exception as e:
-        print(e)
-        i+=1
-           
-print("DONE")
+            page.goto(url)
+            page.screenshot(path=output, full_page=True)
+        finally:
+            browser.close()
+    with Image.open(output) as image:
+        image.convert('RGB').save(os.path.splitext(output)[0] + ".pdf")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Take url and return png and pdf")
+    parser.add_argument("-u", help="Input the URL to take screenshot.", required=True)
+    parser.add_argument("-o", help="Output file.", required=True)
+    args = parser.parse_args()
+
+    for _ in range(ATTEMPTS):
+        try:
+            take_screenshot(args.u, args.o)
+            print("DONE")
+            return 0
+        except Exception as error:
+            print(error)
+    print("FAILED after", ATTEMPTS, "attempts")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

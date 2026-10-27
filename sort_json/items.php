@@ -1,30 +1,28 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'GET'){
-    if (preg_match('/.+\.csv/',$_GET["Items"]) >= 1 ){
-        if (($handle = fopen("./data/".$_GET["Items"], "r")) !== FALSE) {
-        
-            $csvs = [];
-            while(! feof($handle)) {
-               $csvs[] = fgetcsv($handle);
-            }
-        
-            $datas = [];
-            $column_names = [];
-            foreach ($csvs[0] as $single_csv) {
-                $column_names[] = $single_csv;
-            }
-            foreach ($csvs as $key => $csv) {
-                if ($key === 0) {
-                    continue;
-                }
-                foreach ($column_names as $column_key => $column_name) {
-                    $datas[$key-1][$column_name] = $csv[$column_key];
-                }
-            }
-            $json = json_encode($datas);
-            fclose($handle);
-            header("Content-Type: application/json");
-            print_r($json);
-        }
-    }
+require __DIR__ . '/common.php';
+
+// Return the rows of an items CSV file as a JSON array of objects.
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    fail(405);
 }
+$path = data_path(isset($_GET['Items']) ? $_GET['Items'] : '', ['csv']);
+if ($path === false || !is_file($path) || ($handle = fopen($path, 'r')) === false) {
+    fail(404, 'Items file not found.');
+}
+
+$column_names = fgetcsv($handle);
+$rows = [];
+while (($csv = fgetcsv($handle)) !== false) {
+    if ($csv === [null]) {
+        continue; // blank line
+    }
+    $row = [];
+    foreach ($column_names as $index => $column_name) {
+        $row[$column_name] = isset($csv[$index]) ? $csv[$index] : '';
+    }
+    $rows[] = $row;
+}
+fclose($handle);
+
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($rows);
