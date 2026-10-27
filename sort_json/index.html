@@ -98,96 +98,16 @@
     let itemsDownload = document.getElementById("items_download");
     itemsDownload.addEventListener("click", function (e) {
       let select = document.getElementsByTagName("select")[0];
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./items_down.php?action=download&file=" + select.value
-      );
-      a.click();
-      document.body.removeChild(a);
+      download("./items_down.php?action=download&file=" + encodeURIComponent(select.value));
     });
 
     fetch("./jpg_pdf.php?option=exec")
 
-    let index_jpg = document.getElementById("index_jpg");
-    index_jpg.addEventListener("click", function (e) {
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./jpg_pdf.php?option=download&file=index.jpg"
-      );
-      a.click();
-      document.body.removeChild(a);
-    })
-
-    let index_pdf = document.getElementById("index_pdf");
-    index_pdf.addEventListener("click", function (e) {
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./jpg_pdf.php?option=download&file=index.pdf"
-      );
-      a.click();
-      document.body.removeChild(a);
-    })
-
-    let index_flowers_jpg = document.getElementById("index_flowers_jpg");
-    index_flowers_jpg.addEventListener("click", function (e) {
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./jpg_pdf.php?option=download&file=index_flowers.jpg"
-      );
-      a.click();
-      document.body.removeChild(a);
-    })
-
-    let index_flowers_pdf = document.getElementById("index_flowers_pdf");
-    index_flowers_pdf.addEventListener("click", function (e) {
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./jpg_pdf.php?option=download&file=index_flowers.pdf"
-      );
-      a.click();
-      document.body.removeChild(a);
-    })
-
-    let index_others_jpg = document.getElementById("index_others_jpg");
-    index_others_jpg.addEventListener("click", function (e) {
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./jpg_pdf.php?option=download&file=index_others.jpg"
-      );
-      a.click();
-      document.body.removeChild(a);
-    })
-
-    let index_others_pdf = document.getElementById("index_others_pdf");
-    index_others_pdf.addEventListener("click", function (e) {
-      var a = document.createElement("a");
-      a.style.display = "none";
-      document.body.appendChild(a);
-      a.setAttribute(
-        "href",
-        "./jpg_pdf.php?option=download&file=index_others.pdf"
-      );
-      a.click();
-      document.body.removeChild(a);
-    })
+    for (let button of document.querySelectorAll("button[data-file]")) {
+      button.addEventListener("click", function (e) {
+        download("./jpg_pdf.php?option=download&file=" + encodeURIComponent(button.dataset.file));
+      });
+    }
 
     let b = document.getElementsByClassName("submit_button")[0];
     b.addEventListener("click", function (e) {
@@ -290,6 +210,24 @@
     });
   };
 
+  function download(url) {
+    var a = document.createElement("a");
+    a.style.display = "none";
+    a.setAttribute("href", url);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  // Escape a value for use as HTML text or a quoted attribute value.
+  function toHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
   function insertItemsVal(elem) {
     itemsFile = document.getElementById("items_file");
     itemsFile.value = elem.innerText;
@@ -305,14 +243,18 @@
         }
         for (let file of Object.values(result)) {
           files.innerHTML +=
-            `<option onclick = insertItemsVal(this) > ` + file + "</option>";
+            `<option onclick = insertItemsVal(this) > ` + toHtml(file) + "</option>";
         }
       });
     });
   }
 
   async function getItems(items_file) {
-    let resp_prom = await fetch(`./items.php?Items=` + items_file);
+    let resp_prom = await fetch(`./items.php?Items=` + encodeURIComponent(items_file));
+    if (!resp_prom.ok) {
+      alert("Could not load " + items_file + ".");
+      return;
+    }
     try {
       json = await resp_prom.json();
       return json;
@@ -327,7 +269,7 @@
     i = 0;
 
     for (let head of headers) {
-      dataHtml += `<th onclick=sort(${i})>${head}</th>`;
+      dataHtml += `<th onclick=sort(${i})>${toHtml(head)}</th>`;
       i += 1;
     }
     dataHtml = `<tr>${dataHtml}</tr>`;
@@ -427,10 +369,10 @@
         for (let col of Object.values(item)) {
           if (col !== null) {
             if (flag) {
-              dataHtml += `<td>${col}</td>`;
+              dataHtml += `<td>${toHtml(col)}</td>`;
               flag = false;
             } else {
-              dataHtml += `<td onclick=addInput(this)>${col}</td>`;
+              dataHtml += `<td onclick=addInput(this)>${toHtml(col)}</td>`;
             }
           }
         }
@@ -443,7 +385,7 @@
   }
 
   function addInput(element) {
-    element.innerHTML = `<input type="text" value ="${element.innerHTML}">`;
+    element.innerHTML = `<input type="text" value="${toHtml(element.innerText)}">`;
     element.children[0].focus();
     inputValue(element.children[0]);
     element.onclick = function () {
@@ -452,13 +394,10 @@
   }
 
   function inputValue(element) {
+    // Enter commits the edit through the focusout handler below.
     element.addEventListener("keyup", function (e) {
       if (e.key == "Enter" || e.keyCode == 13) {
-        element.parentElement.onclick = function onclick(event) {
-          addInput(this);
-        };
-        changed.add(element.parentElement.parentElement.children);
-        element.parentElement.innerHTML = escapeHtml(element.value);
+        element.blur();
       }
     });
 
@@ -482,8 +421,11 @@
 
     xhr.open("POST", uri, true);
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        alert(xhr.responseText);
+      if (xhr.readyState == 4) {
+        alert(xhr.responseText || "Upload failed.");
+        if (xhr.status != 200) {
+          return;
+        }
         document
           .getElementsByTagName("div")[i].getElementsByTagName("input")[0].value =
           elem.previousElementSibling.files[0].name;
@@ -549,12 +491,12 @@
   </div>
 
   <div>
-    <button id="index_jpg">Download .jpg from index</button>
-    <button id="index_pdf">Download .pdf from index</button>
-    <button id="index_flowers_jpg">Download .jpg from index_flowers</button>
-    <button id="index_flowers_pdf">Download .pdf from index_flowers</button>
-    <button id="index_others_jpg">Download .jpg from index_others</button>
-    <button id="index_others_pdf">Download .pdf from index_others</button>
+    <button id="index_jpg" data-file="index.jpg">Download .jpg from index</button>
+    <button id="index_pdf" data-file="index.pdf">Download .pdf from index</button>
+    <button id="index_flowers_jpg" data-file="index_flowers.jpg">Download .jpg from index_flowers</button>
+    <button id="index_flowers_pdf" data-file="index_flowers.pdf">Download .pdf from index_flowers</button>
+    <button id="index_others_jpg" data-file="index_others.jpg">Download .jpg from index_others</button>
+    <button id="index_others_pdf" data-file="index_others.pdf">Download .pdf from index_others</button>
   </div>
 
   <table class="sortable-table">

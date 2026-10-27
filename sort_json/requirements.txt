@@ -1,0 +1,7 @@
+# sort_json.py
+pandas>=1.1
+odfpy
+python-bidi
+
+# Tests
+pytest

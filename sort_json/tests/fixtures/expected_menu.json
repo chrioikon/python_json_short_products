@@ -1,0 +1,139 @@
+[
+   {
+      "weight": 10,
+      "Type": "תפרחות",
+      "Items": [
+         {
+            "weight": 3,
+            "DoseFamily": "T20/C4",
+            "Items": [
+               {
+                  "ExtraText": "extra",
+                  "Batch": "b1",
+                  "URL1": "u1",
+                  "URL2": "u2",
+                  "weight": 33,
+                  "BmCode": null,
+                  "CBD_Percent": 4,
+                  "ItemCode": 101,
+                  "Brand": "מותג1",
+                  "ItemNameHebrew": "פרפל הייז",
+                  "DisplayText": "פרפל הייז",
+                  "Assay": "20.0-4.0",
+                  "ItemPrice": 100,
+                  "THC_Percent": 20,
+                  "TreatmentGroup": "I",
+                  "DoseFamily": "T20/C4",
+                  "Type": "תפרחות"
+               },
+               {
+                  "ExtraText": null,
+                  "Batch": null,
+                  "URL1": null,
+                  "URL2": null,
+                  "weight": 28,
+                  "BmCode": null,
+                  "CBD_Percent": 4,
+                  "ItemCode": 105,
+                  "Brand": "מותג4",
+                  "ItemNameHebrew": "קוש",
+                  "DisplayText": "קוש",
+                  "Assay": "",
+                  "ItemPrice": 90,
+                  "THC_Percent": 20,
+                  "TreatmentGroup": "I",
+                  "DoseFamily": "T20/C4",
+                  "Type": "תפרחות"
+               }
+            ]
+         },
+         {
+            "weight": 1,
+            "DoseFamily": "T22/C1",
+            "Items": [
+               {
+                  "ExtraText": null,
+                  "Batch": null,
+                  "URL1": null,
+                  "URL2": null,
+                  "weight": 28,
+                  "BmCode": null,
+                  "CBD_Percent": 1,
+                  "ItemCode": 102,
+                  "Brand": "Brand2",
+                  "ItemNameHebrew": "Lemon",
+                  "DisplayText": "Lemon",
+                  "Assay": "22.0-1.0",
+                  "ItemPrice": 120,
+                  "THC_Percent": 22,
+                  "TreatmentGroup": "S",
+                  "DoseFamily": "T22/C1",
+                  "Type": "תפרחות"
+               }
+            ]
+         }
+      ]
+   },
+   {
+      "weight": 1,
+      "Type": "משאף",
+      "Items": [
+         {
+            "weight": 3,
+            "DoseFamily": "T20/C4",
+            "Items": [
+               {
+                  "ExtraText": null,
+                  "Batch": null,
+                  "URL1": null,
+                  "URL2": null,
+                  "weight": 29,
+                  "BmCode": null,
+                  "CBD_Percent": 4,
+                  "ItemCode": 104,
+                  "Brand": "מותג1",
+                  "ItemNameHebrew": "וייפ",
+                  "DisplayText": "וייפ",
+                  "Assay": "",
+                  "ItemPrice": 150,
+                  "THC_Percent": 20,
+                  "TreatmentGroup": "I",
+                  "DoseFamily": "T20/C4",
+                  "Type": "משאף"
+               }
+            ]
+         }
+      ]
+   },
+   {
+      "weight": 1,
+      "Type": "שמנים",
+      "Items": [
+         {
+            "weight": 1,
+            "DoseFamily": "T10/C10",
+            "Items": [
+               {
+                  "ExtraText": null,
+                  "Batch": null,
+                  "URL1": null,
+                  "URL2": null,
+                  "weight": 24,
+                  "BmCode": null,
+                  "CBD_Percent": 10,
+                  "ItemCode": 103,
+                  "Brand": "מותג קיים",
+                  "ItemNameHebrew": "שמן קיים",
+                  "DisplayText": "שמן קיים",
+                  "Assay": "10.0",
+                  "ItemPrice": 200,
+                  "THC_Percent": 10,
+                  "TreatmentGroup": "B",
+                  "DoseFamily": "T10/C10",
+                  "Type": "שמנים"
+               }
+            ]
+         }
+      ]
+   }
+]
